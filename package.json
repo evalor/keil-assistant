@@ -26,10 +26,12 @@
     ],
     "activationEvents": [
         "onView:project",
-        "onCommand:explorer.open"
+        "onCommand:explorer.open",
+        "onLanguageModelTool:keil-assistant_buildProject",
+        "onLanguageModelTool:keil-assistant_getProjectInfo"
     ],
     "icon": "res/icons/icon.png",
-    "main": "./dist/src/extension.js",
+    "main": "./dist/extension.js",
     "repository": {
         "type": "git",
         "url": "https://github.com/ruiwarn/keil-assistant"
@@ -196,19 +198,22 @@
             {
                 "name": "keil-assistant_buildProject",
                 "displayName": "Build Keil Project",
-                "modelDescription": "Build or rebuild a Keil project target. Returns compilation results including errors and warnings with file paths, line numbers, and error codes.",
+                "modelDescription": "Build or rebuild a Keil project target. Returns compilation results including errors and warnings with file paths, line numbers, and error codes. Use this tool when: 1) User asks to compile/build/rebuild a Keil project or embedded firmware, 2) User mentions 'build the project' or 'compile the code', 3) User wants to check for compilation errors, 4) User asks to verify if the code compiles successfully.",
                 "userDescription": "Build or rebuild a Keil uVision project target",
                 "icon": "$(tools)",
+                "tags": ["build", "compile", "keil", "embedded", "firmware"],
+                "toolReferenceName": "buildProject",
+                "canBeReferencedInPrompt": true,
                 "inputSchema": {
                     "type": "object",
                     "properties": {
                         "target": {
                             "type": "string",
-                            "description": "Target name to build. If not specified, the active target will be used."
+                            "description": "The name of the specific target configuration to build (e.g., 'Debug', 'Release'). If omitted, the currently active target will be built."
                         },
                         "rebuild": {
                             "type": "boolean",
-                            "description": "Whether to rebuild (clean + build). Default is false.",
+                            "description": "Set to true to perform a clean rebuild (recompile all files), or false for incremental build (compile only changed files). Default: false.",
                             "default": false
                         }
                     }
@@ -217,12 +222,16 @@
             {
                 "name": "keil-assistant_getProjectInfo",
                 "displayName": "Get Keil Project Info",
-                "modelDescription": "Get detailed information about the current Keil project including project name, type (C51/C251/ARM), active target, all available targets, and source file list.",
+                "modelDescription": "Get detailed information about the current Keil project including project name, type (C51/C251/ARM), active target, all available targets, and source file list. Use this tool when: 1) User asks 'what is the current project', 'show project info', or 'list project files', 2) User wants to know available build targets, 3) User asks about project configuration or structure, 4) You need to understand the project context before building or making changes, 5) User asks about the project type (C51/ARM/C251).",
                 "userDescription": "Get information about the current Keil uVision project",
                 "icon": "$(info)",
+                "tags": ["info", "project", "keil", "structure", "configuration"],
+                "toolReferenceName": "getProjectInfo",
+                "canBeReferencedInPrompt": true,
                 "inputSchema": {
                     "type": "object",
-                    "properties": {}
+                    "properties": {},
+                    "description": "No parameters required. Returns information about the currently active Keil project in the workspace."
                 }
             }
         ],

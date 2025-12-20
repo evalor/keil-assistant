@@ -77,7 +77,10 @@ function showMessage(message: string, type: 'info' | 'warning' | 'error' = 'info
 
 export function activate(context: vscode.ExtensionContext) {
 
+    console.log('==================================================');
     console.log('---- keil-assistant actived ----');
+    console.log('==================================================');
+    vscode.window.showInformationMessage('Keil Assistant is now active!');
 
     // init resource
     ResourceManager.getInstance(context);
@@ -251,7 +254,9 @@ export function activate(context: vscode.ExtensionContext) {
     subscriber.push(vscode.commands.registerCommand('project.active', (item: IView) => prjExplorer.activeProject(item)));
 
     // 注册Chat Tools
+    console.log('[Keil Assistant] Registering Chat Tools...');
     registerChatTools(context, prjExplorer);
+    console.log('[Keil Assistant] Chat Tools registration completed');
 
     prjExplorer.loadWorkspace();
 }

@@ -52,6 +52,12 @@ export interface ProjectInfo {
  * Keil Chat Tool抽象基类
  */
 export abstract class KeilChatTool implements vscode.LanguageModelTool<any> {
+    /**
+     * 工具标签,用于LLM发现和筛选工具
+     * 子类必须定义此属性
+     */
+    abstract readonly tags: readonly string[];
+
     abstract invoke(
         options: vscode.LanguageModelToolInvocationOptions<any>,
         token: vscode.CancellationToken

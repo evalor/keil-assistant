@@ -18,6 +18,23 @@ interface BuildToolInput {
  * 支持编译指定目标,可选重新编译,异步等待编译完成并返回结果
  */
 export class BuildTool extends KeilChatTool {
+    readonly name = 'keil-assistant_buildProject';
+    readonly description = 'Build or rebuild a Keil project target. Returns compilation results including errors and warnings with file paths, line numbers, and error codes. Use this tool when: 1) User asks to compile/build/rebuild a Keil project or embedded firmware, 2) User mentions "build the project" or "compile the code", 3) User wants to check for compilation errors, 4) User asks to verify if the code compiles successfully.';
+    readonly tags = ['build', 'compile', 'keil', 'embedded', 'firmware'];
+    readonly inputSchema = {
+        type: 'object',
+        properties: {
+            target: {
+                type: 'string',
+                description: 'The name of the specific target configuration to build (e.g., "Debug", "Release"). If omitted, the currently active target will be built.'
+            },
+            rebuild: {
+                type: 'boolean',
+                description: 'Set to true to perform a clean rebuild (recompile all files), or false for incremental build (compile only changed files). Default: false.'
+            }
+        }
+    };
+
     constructor(private projectExplorer: any) {
         super();
     }
@@ -66,7 +83,7 @@ export class BuildTool extends KeilChatTool {
             }
 
             // 获取目标
-            let targetObj;
+            let targetObj: any;
             if (target) {
                 targetObj = activeProject.getTargetByName(target);
                 if (!targetObj) {

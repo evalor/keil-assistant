@@ -10,6 +10,15 @@ import { KeilChatTool, ProjectInfo, TargetInfo } from '../types';
  * 返回项目名称、类型、目标列表、源文件列表等信息
  */
 export class GetProjectInfoTool extends KeilChatTool {
+    readonly name = 'keil-assistant_getProjectInfo';
+    readonly description = 'Get detailed information about the current Keil project including project name, type (C51/C251/ARM), active target, all available targets, and source file list. Use this tool when: 1) User asks "what is the current project", "show project info", or "list project files", 2) User wants to know available build targets, 3) User asks about project configuration or structure, 4) You need to understand the project context before building or making changes, 5) User asks about the project type (C51/ARM/C251).';
+    readonly tags = ['info', 'project', 'keil', 'structure', 'configuration'];
+    readonly inputSchema = {
+        type: 'object',
+        properties: {},
+        description: 'No parameters required. Returns information about the currently active Keil project in the workspace.'
+    };
+
     constructor(private projectExplorer: any) {
         super();
     }
