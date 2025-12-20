@@ -10,6 +10,7 @@ import * as os from 'os'; // Import os module
 
 import { File } from '../lib/node_utility/File';
 import { ResourceManager } from './ResourceManager';
+import { registerChatTools } from './chatTools';
 let diagnosticCollection: vscode.DiagnosticCollection;
 import { FileWatcher } from '../lib/node_utility/FileWatcher';
 import { Time } from '../lib/node_utility/Time';
@@ -248,6 +249,9 @@ export function activate(context: vscode.ExtensionContext) {
     subscriber.push(vscode.commands.registerCommand('project.switch', (item: IView) => prjExplorer.switchTargetByProject(item)));
     
     subscriber.push(vscode.commands.registerCommand('project.active', (item: IView) => prjExplorer.activeProject(item)));
+
+    // 注册Chat Tools
+    registerChatTools(context, prjExplorer);
 
     prjExplorer.loadWorkspace();
 }
@@ -670,6 +674,7 @@ abstract class Target implements IView {
     protected fGroups: FileGroup[];
     protected includes: Set<string>;
     protected defines: Set<string>;
+    protected lastDiagnostics: Map<string, vscode.Diagnostic[]> = new Map();
 
     private uv4LogFile: File;
     private uv4LogLockFileWatcher: FileWatcher;
@@ -1192,6 +1197,9 @@ abstract class Target implements IView {
             }
         }
 
+        // 保存诊断信息到lastDiagnostics
+        this.lastDiagnostics = diagnosticsMap;
+
         diagnosticsMap.forEach((diags, uriString) => {
             diagnosticCollection.set(vscode.Uri.parse(uriString), diags);
         });
@@ -1201,6 +1209,13 @@ abstract class Target implements IView {
         } else {
             this.project.logger.log(`[INFO] No new diagnostics found in log file.`);
         }
+    }
+
+    /**
+     * 获取最近一次编译的诊断信息
+     */
+    public getLastDiagnostics(): Map<string, vscode.Diagnostic[]> {
+        return this.lastDiagnostics;
     }
 }
 

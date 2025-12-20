@@ -192,6 +192,40 @@
                 "key": "ctrl+alt+d"
             }
         ],
+        "languageModelTools": [
+            {
+                "name": "keil-assistant_buildProject",
+                "displayName": "Build Keil Project",
+                "modelDescription": "Build or rebuild a Keil project target. Returns compilation results including errors and warnings with file paths, line numbers, and error codes.",
+                "userDescription": "Build or rebuild a Keil uVision project target",
+                "icon": "$(tools)",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "target": {
+                            "type": "string",
+                            "description": "Target name to build. If not specified, the active target will be used."
+                        },
+                        "rebuild": {
+                            "type": "boolean",
+                            "description": "Whether to rebuild (clean + build). Default is false.",
+                            "default": false
+                        }
+                    }
+                }
+            },
+            {
+                "name": "keil-assistant_getProjectInfo",
+                "displayName": "Get Keil Project Info",
+                "modelDescription": "Get detailed information about the current Keil project including project name, type (C51/C251/ARM), active target, all available targets, and source file list.",
+                "userDescription": "Get information about the current Keil uVision project",
+                "icon": "$(info)",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {}
+                }
+            }
+        ],
         "snippets": [
             {
                 "language": "a51",
