@@ -22,10 +22,8 @@ export interface BuildResult {
     success: boolean;
     exitCode: number;
     target: string;
-    errors: DiagnosticInfo[];
-    errorCount: number;
-    warningCount: number;
-    logFile: string;
+    buildLog: string;
+    message?: string;
 }
 
 /**

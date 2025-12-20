@@ -3,7 +3,7 @@
  */
 
 import * as vscode from 'vscode';
-import { KeilChatTool, BuildResult, DiagnosticInfo } from '../types';
+import { KeilChatTool, BuildResult } from '../types';
 
 /**
  * 编译工具输入参数
@@ -74,10 +74,7 @@ export class BuildTool extends KeilChatTool {
                     success: false,
                     exitCode: -1,
                     target: target || 'unknown',
-                    errors: [],
-                    errorCount: 0,
-                    warningCount: 0,
-                    logFile: '',
+                    buildLog: '',
                     message: errorMsg
                 });
             }
@@ -92,10 +89,7 @@ export class BuildTool extends KeilChatTool {
                         success: false,
                         exitCode: -1,
                         target: target,
-                        errors: [],
-                        errorCount: 0,
-                        warningCount: 0,
-                        logFile: '',
+                        buildLog: '',
                         message: `Target '${target}' not found. Available targets: ${availableTargets}`
                     });
                 }
@@ -106,10 +100,7 @@ export class BuildTool extends KeilChatTool {
                         success: false,
                         exitCode: -1,
                         target: 'unknown',
-                        errors: [],
-                        errorCount: 0,
-                        warningCount: 0,
-                        logFile: '',
+                        buildLog: '',
                         message: 'No active target found in the project.'
                     });
                 }
@@ -169,52 +160,37 @@ export class BuildTool extends KeilChatTool {
             // 等待编译完成
             const result = await buildPromise;
 
-            // 等待一小段时间确保诊断信息已处理
+            // 等待一小段时间确保日志文件写入完成
             await new Promise(resolve => setTimeout(resolve, 500));
 
-            // 处理诊断信息
-            await result.target.processDiagnostics();
-
-            // 提取诊断信息
-            const diagnostics = result.target.getLastDiagnostics();
-            const errors: DiagnosticInfo[] = [];
-            let errorCount = 0;
-            let warningCount = 0;
-
-            diagnostics.forEach((diags: vscode.Diagnostic[], uriString: string) => {
-                const uri = vscode.Uri.parse(uriString);
-                diags.forEach((diag: vscode.Diagnostic) => {
-                    const severity = diag.severity === vscode.DiagnosticSeverity.Error ? 'error' : 'warning';
-                    if (severity === 'error') {
-                        errorCount++;
+            // 读取日志文件内容
+            const logFilePath = targetObj.uv4LogFile?.path || '';
+            let buildLog = '';
+            
+            if (logFilePath) {
+                try {
+                    const fs = require('fs');
+                    if (fs.existsSync(logFilePath)) {
+                        buildLog = fs.readFileSync(logFilePath, 'utf-8');
+                        outputChannel.appendLine(`[BuildTool] Read log file: ${logFilePath}, size: ${buildLog.length} bytes`);
                     } else {
-                        warningCount++;
+                        outputChannel.appendLine(`[BuildTool] Log file not found: ${logFilePath}`);
+                        buildLog = 'Log file not found.';
                     }
+                } catch (readError: any) {
+                    outputChannel.appendLine(`[BuildTool] Error reading log file: ${readError.message}`);
+                    buildLog = `Error reading log file: ${readError.message}`;
+                }
+            } else {
+                buildLog = 'Log file path not available.';
+            }
 
-                    // 提取错误代码和消息
-                    const match = diag.message.match(/^([^:]+):\s*(.*)$/);
-                    const code = match ? match[1] : '';
-                    const message = match ? match[2] : diag.message;
-
-                    errors.push({
-                        file: uri.fsPath,
-                        line: diag.range.start.line + 1,
-                        severity,
-                        code,
-                        message
-                    });
-                });
-            });
-
-            // 构建结果
+            // 构建结果：直接返回日志内容
             const buildResult: BuildResult = {
                 success: result.exitCode === 0,
                 exitCode: result.exitCode,
                 target: targetObj.targetName,
-                errors,
-                errorCount,
-                warningCount,
-                logFile: targetObj.uv4LogFile?.path || ''
+                buildLog
             };
 
             return this.formatResult(buildResult);
@@ -228,10 +204,7 @@ export class BuildTool extends KeilChatTool {
                 success: false,
                 exitCode: -1,
                 target: options.input.target || 'unknown',
-                errors: [],
-                errorCount: 0,
-                warningCount: 0,
-                logFile: '',
+                buildLog: '',
                 message: `Build failed: ${errorMsg}`
             });
         } finally {
