@@ -77,10 +77,7 @@ function showMessage(message: string, type: 'info' | 'warning' | 'error' = 'info
 
 export function activate(context: vscode.ExtensionContext) {
 
-    console.log('==================================================');
     console.log('---- keil-assistant actived ----');
-    console.log('==================================================');
-    vscode.window.showInformationMessage('Keil Assistant is now active!');
 
     // init resource
     ResourceManager.getInstance(context);
@@ -254,9 +251,7 @@ export function activate(context: vscode.ExtensionContext) {
     subscriber.push(vscode.commands.registerCommand('project.active', (item: IView) => prjExplorer.activeProject(item)));
 
     // 注册Chat Tools
-    console.log('[Keil Assistant] Registering Chat Tools...');
     registerChatTools(context, prjExplorer);
-    console.log('[Keil Assistant] Chat Tools registration completed');
 
     prjExplorer.loadWorkspace();
 }
@@ -679,7 +674,6 @@ abstract class Target implements IView {
     protected fGroups: FileGroup[];
     protected includes: Set<string>;
     protected defines: Set<string>;
-    protected lastDiagnostics: Map<string, vscode.Diagnostic[]> = new Map();
 
     private uv4LogFile: File;
     private uv4LogLockFileWatcher: FileWatcher;
@@ -1202,9 +1196,6 @@ abstract class Target implements IView {
             }
         }
 
-        // 保存诊断信息到lastDiagnostics
-        this.lastDiagnostics = diagnosticsMap;
-
         diagnosticsMap.forEach((diags, uriString) => {
             diagnosticCollection.set(vscode.Uri.parse(uriString), diags);
         });
@@ -1214,13 +1205,6 @@ abstract class Target implements IView {
         } else {
             this.project.logger.log(`[INFO] No new diagnostics found in log file.`);
         }
-    }
-
-    /**
-     * 获取最近一次编译的诊断信息
-     */
-    public getLastDiagnostics(): Map<string, vscode.Diagnostic[]> {
-        return this.lastDiagnostics;
     }
 }
 

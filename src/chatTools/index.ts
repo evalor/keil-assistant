@@ -12,23 +12,16 @@ import { GetProjectInfoTool } from './tools/GetProjectInfoTool';
  * @param projectExplorer ProjectExplorer实例,用于访问项目和目标
  */
 export function registerChatTools(context: vscode.ExtensionContext, projectExplorer: any): void {
-    console.log('[Keil Assistant] registerChatTools() called');
-    
     try {
         // 检查Language Model API是否可用
-        console.log('[Keil Assistant] Checking vscode.lm availability...');
-        console.log('[Keil Assistant] vscode.lm exists:', !!vscode.lm);
-        console.log('[Keil Assistant] vscode.lm.registerTool exists:', !!(vscode.lm && vscode.lm.registerTool));
-        
         if (!vscode.lm || !vscode.lm.registerTool) {
-            const msg = '[Keil Assistant] Language Model API not available. Chat Tools will not be registered.';
-            console.warn(msg);
+            console.warn('[Keil Assistant] Language Model API not available. Chat Tools will not be registered.');
             vscode.window.showWarningMessage('Keil Assistant: Chat Tools require GitHub Copilot to be installed and enabled.');
             return;
         }
 
         const outputChannel = vscode.window.createOutputChannel('Keil Assistant Chat Tools');
-        outputChannel.show(); // 自动显示输出频道
+        // 不自动显示输出频道,避免打断用户工作流
         outputChannel.appendLine('=================================================');
         outputChannel.appendLine('[Chat Tools] Starting registration...');
         outputChannel.appendLine('=================================================');
@@ -39,10 +32,10 @@ export function registerChatTools(context: vscode.ExtensionContext, projectExplo
             const buildToolDisposable = vscode.lm.registerTool('keil-assistant_buildProject', buildTool);
             context.subscriptions.push(buildToolDisposable);
             outputChannel.appendLine('[Chat Tools] BuildTool registered: keil-assistant_buildProject');
-            console.log('[Keil Assistant] BuildTool registered successfully');
         } catch (error) {
-            outputChannel.appendLine(`[Chat Tools] Failed to register BuildTool: ${error}`);
-            console.error('[Keil Assistant] Failed to register BuildTool:', error);
+            const errorMsg = `Failed to register BuildTool: ${error}`;
+            outputChannel.appendLine(`[Chat Tools] ${errorMsg}`);
+            console.error('[Keil Assistant]', errorMsg);
         }
 
         // 注册GetProjectInfoTool
@@ -51,10 +44,10 @@ export function registerChatTools(context: vscode.ExtensionContext, projectExplo
             const infoToolDisposable = vscode.lm.registerTool('keil-assistant_getProjectInfo', getProjectInfoTool);
             context.subscriptions.push(infoToolDisposable);
             outputChannel.appendLine('[Chat Tools] GetProjectInfoTool registered: keil-assistant_getProjectInfo');
-            console.log('[Keil Assistant] GetProjectInfoTool registered successfully');
         } catch (error) {
-            outputChannel.appendLine(`[Chat Tools] Failed to register GetProjectInfoTool: ${error}`);
-            console.error('[Keil Assistant] Failed to register GetProjectInfoTool:', error);
+            const errorMsg = `Failed to register GetProjectInfoTool: ${error}`;
+            outputChannel.appendLine(`[Chat Tools] ${errorMsg}`);
+            console.error('[Keil Assistant]', errorMsg);
         }
 
         outputChannel.appendLine('[Chat Tools] All tools registered successfully');
@@ -72,7 +65,6 @@ export function registerChatTools(context: vscode.ExtensionContext, projectExplo
                 outputChannel.appendLine(`  - ${tool.name}`);
                 outputChannel.appendLine(`    Description: ${tool.description}`);
                 outputChannel.appendLine(`    Tags: ${tool.tags.join(', ')}`);
-                outputChannel.appendLine(`    Has inputSchema: ${!!tool.inputSchema}`);
             });
             
             if (ourTools.length === 0) {
@@ -89,15 +81,14 @@ export function registerChatTools(context: vscode.ExtensionContext, projectExplo
             outputChannel.appendLine('  - Try asking: "Compile and check for errors"');
             outputChannel.appendLine('  - Or use tool references: #keil-assistant_buildProject');
             outputChannel.appendLine('=================================================');
-        }, 1000);
+        }, 100);
         
-        console.log('[Keil Assistant] Chat Tools registered successfully');
-        
-        // 不要立即dispose outputChannel，让它保持打开以便调试
+        // 保持outputChannel打开以便调试
         context.subscriptions.push(outputChannel);
         
     } catch (error) {
-        console.error('[Keil Assistant] Failed to register Chat Tools:', error);
-        vscode.window.showErrorMessage(`Failed to register Keil Assistant Chat Tools: ${error}`);
+        const errorMsg = `Failed to register Chat Tools: ${error}`;
+        console.error('[Keil Assistant]', errorMsg);
+        vscode.window.showErrorMessage(`Keil Assistant: ${errorMsg}`);
     }
 }
