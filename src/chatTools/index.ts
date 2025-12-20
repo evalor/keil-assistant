@@ -5,10 +5,9 @@
 import * as vscode from 'vscode';
 import { BuildTool } from './tools/BuildTool';
 import { GetProjectInfoTool } from './tools/GetProjectInfoTool';
-import { KeilChatParticipant, ChatParticipantState } from './KeilChatParticipant';
 
 /**
- * 注册所有Chat Tools和Chat Participant
+ * 注册所有Chat Tools
  * @param context 扩展上下文
  * @param projectExplorer ProjectExplorer实例,用于访问项目和目标
  */
@@ -60,19 +59,6 @@ export function registerChatTools(context: vscode.ExtensionContext, projectExplo
 
         outputChannel.appendLine('[Chat Tools] All tools registered successfully');
         
-        // 注册Chat Participant
-        try {
-            outputChannel.appendLine('\n[Chat Participant] Registering @keil participant...');
-            const chatParticipantState = new ChatParticipantState();
-            const keilChatParticipant = new KeilChatParticipant(context, chatParticipantState);
-            context.subscriptions.push(keilChatParticipant);
-            outputChannel.appendLine('[Chat Participant] @keil participant registered successfully');
-            outputChannel.appendLine('[Chat Participant] Usage: Type "@keil" in Copilot Chat to use the Keil assistant');
-        } catch (error) {
-            outputChannel.appendLine(`[Chat Participant] Failed to register @keil participant: ${error}`);
-            console.error('[Keil Assistant] Failed to register Chat Participant:', error);
-        }
-        
         // 验证工具是否在lm.tools中
         setTimeout(() => {
             outputChannel.appendLine('\n=================================================');
@@ -97,10 +83,10 @@ export function registerChatTools(context: vscode.ExtensionContext, projectExplo
             
             outputChannel.appendLine('=================================================');
             outputChannel.appendLine('[Chat Tools] Tips for using tools:');
-            outputChannel.appendLine('  - Use @keil in Copilot Chat for best experience');
-            outputChannel.appendLine('  - Try: "@keil Build the project"');
-            outputChannel.appendLine('  - Try: "@keil Show me information about this project"');
-            outputChannel.appendLine('  - Try: "@keil Compile and check for errors"');
+            outputChannel.appendLine('  - Tools are available in Copilot Chat');
+            outputChannel.appendLine('  - Try asking: "Build the Keil project"');
+            outputChannel.appendLine('  - Try asking: "Show me information about this project"');
+            outputChannel.appendLine('  - Try asking: "Compile and check for errors"');
             outputChannel.appendLine('  - Or use tool references: #keil-assistant_buildProject');
             outputChannel.appendLine('=================================================');
         }, 1000);
