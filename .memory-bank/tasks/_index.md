@@ -8,7 +8,7 @@
 
 ## 待办
 
-*等待用户明确功能增强需求*
+- [TASK001] [为Copilot集成Chat Tools支持](./TASK001-integrate-chat-tools-for-copilot.md) - 将Keil Assistant功能作为对话工具开放给LLM，使Copilot能够自主调用C51项目操作
 
 ## 已完成
 
